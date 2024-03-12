@@ -4,7 +4,7 @@
       <div class="w-full relative">
         <img :src="searchIcon" class="w-5 h-5 absolute left-6 top-[1.1rem]" />
         <input
-          class="bg-white w-full rounded-full pr-3 pl-16 py-4 flex placeholder:text-xl placeholder:text-black"
+          class="bg-white w-full rounded-full pr-3 pl-16 py-4 flex placeholder:text-xl placeholder:text-black text-xl font-semibold"
           placeholder="Search"
           type="text"
         />
@@ -30,6 +30,7 @@ import axios from "axios";
 export default {
   setup() {
     const topics = ref([]);
+    const search = ref("");
 
     axios
       .get("/topic")
@@ -43,6 +44,9 @@ export default {
     return {
       topics,
     };
+  },
+  methods: {
+    searchTopic() {},
   },
   data() {
     return {

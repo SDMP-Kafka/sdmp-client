@@ -1,23 +1,29 @@
 <template>
   <div class="w-screen">
-    <h1 class="text-3xl font-bold">Create Filter</h1>
+    <h1 class="text-3xl font-bold">Filtering</h1>
     <div class="border-b border-black border-opacity-20 w-full py-2"></div>
     <div class="pt-2">
       <h2 class="text-xl font-bold py-2 text-blue-800">Topic</h2>
       <div class="flex w-full justify-start gap-x-4 font-semibold">
         <div class="flex flex-col w-1/2">
-          <label>Input topic:</label>
-          <input
-            class="w-full rounded px-3 py-1"
+          <label class="font-light">Input topic:</label>
+          <v-select
+            class="style-chooser"
+            :options="topics"
+            label="topicName"
+            taggable
             v-model="topicCreate.inputTopic"
-          />
+          ></v-select>
         </div>
         <div class="flex flex-col w-1/2">
-          <label>Output topic:</label>
-          <input
-            class="w-full rounded px-3 py-1"
+          <label class="font-extralight">Output topic:</label>
+          <v-select
+            class="style-chooser"
+            :options="topics"
+            label="topicName"
+            taggable
             v-model="topicCreate.outputTopic"
-          />
+          ></v-select>
         </div>
       </div>
     </div>
@@ -39,41 +45,49 @@
           </button>
         </div>
       </div>
-      <div class="flex flex-col gap-y-2 overflow-scroll">
+      <div class="flex flex-col gap-y-2">
         <div class="flex gap-x-4" v-for="(item, index) in filters">
           <div class="flex flex-col w-50">
-            <label class="font-semibold">Type:</label>
-            <select class="rounded p-1 font-semibold" v-model="item.type">
-              <option
-                v-for="(option, index) in typeOptions"
-                :value="option.val"
-              >
-                {{ option.type }}
-              </option>
-            </select>
+            <label class="font-extralight">Type:</label>
+            <v-select
+              class="style-type font-semibold"
+              :options="typeOptions"
+              :reduce="(type) => type.val"
+              label="type"
+              v-model="item.type"
+            ></v-select>
           </div>
           <div class="flex flex-col w-96">
-            <label class="font-semibold">Key:</label>
-            <input class="w-full rounded px-3 py-1" v-model="item.key" />
+            <label class="font-extralight">Key:</label>
+            <input
+              class="w-full rounded px-3 py-1 font-semibold"
+              v-model="item.key"
+            />
           </div>
           <div
             class="flex flex-col w-full"
             v-if="item.type === 'STRING' || item.type === 'NUMBER'"
           >
-            <label class="font-semibold">Value:</label>
-            <input class="w-full rounded px-3 py-1" v-model="item.value" />
+            <label class="font-extralight">Value:</label>
+            <input
+              class="w-full rounded px-3 py-1 font-semibold"
+              v-model="item.value"
+            />
           </div>
           <div v-else class="flex gap-x-4 w-full">
-            <div>
-              <label class="font-semibold">Start value:</label>
+            <div class="w-1/2">
+              <label class="font-extralight">Start value:</label>
               <input
-                class="w-full rounded px-3 py-1"
+                class="w-full rounded px-3 py-1 font-semibold"
                 v-model="item.rangeStart"
               />
             </div>
-            <div>
-              <label class="font-semibold">End value:</label>
-              <input class="w-full rounded px-3 py-1" v-model="item.rangeEnd" />
+            <div class="w-1/2">
+              <label class="font-extralight">End value:</label>
+              <input
+                class="w-full rounded px-3 py-1 font-semibold"
+                v-model="item.rangeEnd"
+              />
             </div>
           </div>
         </div>
@@ -95,10 +109,20 @@ export default {
       inputTopic: "",
       outputTopic: "",
     });
+    const topics = ref([]);
+    axios
+      .get("/topic")
+      .then((res) => {
+        topics.value = res.data;
+      })
+      .catch((err) => {
+        console.log(err);
+      });
     return {
       type,
       filters,
       topicCreate,
+      topics,
     };
   },
   methods: {
@@ -112,16 +136,28 @@ export default {
       });
     },
     executeFilter() {
-      console.log(this.filters);
-      console.log(this.topicCreate);
       axios
         .post("/topic/newtopic", {
-          inputTopic: this.topicCreate.inputTopic,
-          outputTopic: this.topicCreate.outputTopic,
+          inputTopic: this.topicCreate.inputTopic.topicName,
+          outputTopic: this.topicCreate.outputTopic.topicName,
           filtering: this.filters,
         })
         .then((res) => {
           console.log(res.data);
+          this.$toast.success("Excecute Filter Succesful");
+          this.topicCreate = {
+            inputTopic: "",
+            outputTopic: "",
+          };
+          this.filters = [
+            {
+              type: "NUMBER",
+              key: "",
+              value: "",
+              rangeStart: "",
+              rangeEnd: "",
+            },
+          ];
         })
         .catch((err) => {
           console.log(err);
@@ -139,3 +175,23 @@ export default {
   },
 };
 </script>
+
+<style>
+@import "vue-select/dist/vue-select.css";
+.style-chooser .vs__search::placeholder,
+.style-chooser .vs__dropdown-toggle,
+.style-chooser .vs__dropdown-menu {
+  background: white;
+  border: none;
+  color: black;
+}
+
+.style-type .vs__search::placeholder,
+.style-type .vs__dropdown-toggle,
+.style-type .vs__dropdown-menu {
+  background: white;
+  border: none;
+  color: black;
+  width: 9rem;
+}
+</style>
