@@ -11,10 +11,12 @@
       </div>
       <div class="w-full flex justify-start flex-wrap gap-8">
         <div
-          v-for="(item, index) in mockTopic"
-          class="w-52 h-24 bg-white rounded-lg font-semibold text-2xl flex justify-center items-center"
+          v-for="(item, index) in topics"
+          class="w-52 h-24 bg-white rounded-lg font-semibold text-2xl"
         >
-          {{ item.title }}
+          <h1 class="px-3 w-full h-full flex justify-center items-center">
+            {{ item.topicName }}
+          </h1>
         </div>
       </div>
     </div>
@@ -23,21 +25,28 @@
 
 <script>
 import { searchIcon } from "@/assets";
+import { ref } from "vue";
+import axios from "axios";
 export default {
+  setup() {
+    const topics = ref([]);
+
+    axios
+      .get("/topic")
+      .then((res) => {
+        topics.value = res.data;
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+    return {
+      topics,
+    };
+  },
   data() {
     return {
       searchIcon,
-      mockTopic: [
-        { title: "Topic A", id: "topica" },
-        { title: "Topic B", id: "topicb" },
-        { title: "Topic C", id: "topicc" },
-        { title: "Topic E", id: "topicd" },
-        { title: "Topic F", id: "topice" },
-        { title: "Topic G", id: "topicf" },
-        { title: "Topic H", id: "topicg" },
-        { title: "Topic I", id: "topich" },
-        { title: "Topic J", id: "topici" },
-      ],
     };
   },
 };
