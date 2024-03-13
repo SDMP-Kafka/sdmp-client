@@ -5,16 +5,15 @@
     >
       <h1 class="text-3xl font-bold py-8">Logo</h1>
       <ul class="flex flex-col justify-start items-center gap-y-6">
-        <li
+        <button
           v-for="(item, index) in SidebarItems"
           class="font-semibold hover:bg-blue-600 hover:text-white rounded-3xl w-28 flex px-5 py-1 duration-200 items-center justify-center"
           :class="isSidebarActive(item.path) ? 'bg-blue-600 text-white' : ''"
+          @click="navigatePath(item.path)"
         >
-          <router-link :to="item.path">
-            {{ item.title }}
-          </router-link>
+          {{ item.title }}
           <div></div>
-        </li>
+        </button>
       </ul>
     </div>
   </aside>
@@ -41,6 +40,9 @@ export default {
         return true;
       }
       return false;
+    },
+    navigatePath(nextPath) {
+      this.$router.push(nextPath);
     },
   },
 };
