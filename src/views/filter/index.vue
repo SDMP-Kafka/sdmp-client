@@ -9,7 +9,7 @@
           <label class="font-light">Input topic:</label>
           <v-select
             class="style-chooser"
-            :options="topics"
+            :options="filteredInputTopic"
             label="topicName"
             taggable
             v-model="topicCreate.inputTopic"
@@ -19,7 +19,11 @@
           <label class="font-extralight">Output topic:</label>
           <v-select
             class="style-chooser"
-            :options="topics"
+            :options="
+              topics.filter(
+                (topic) => topic.topicName !== topicCreate.inputTopic.topicName,
+              )
+            "
             label="topicName"
             taggable
             v-model="topicCreate.outputTopic"
@@ -97,7 +101,7 @@
 </template>
 
 <script>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import axios from "axios";
 export default {
   setup() {
@@ -113,16 +117,32 @@ export default {
     axios
       .get("/topic")
       .then((res) => {
-        topics.value = res.data;
+        topics.value = res.data.sort((a, b) =>
+          a.topicName.localeCompare(b.topicName),
+        );
       })
       .catch((err) => {
         console.log(err);
       });
+
+    const filteredInputTopic = computed(() => {
+      return topics.value.filter(
+        (topic) => topic.topicName !== topicCreate.value.outputTopic.topicName,
+      );
+    });
+
+    const filteredOutputTopic = computed(() => {
+      return topics.value.filter(
+        (topic) => topic.topicName !== topicCreate.value.inputTopic.topicName,
+      );
+    });
+
     return {
       type,
       filters,
       topicCreate,
       topics,
+      filteredInputTopic,
     };
   },
   methods: {
