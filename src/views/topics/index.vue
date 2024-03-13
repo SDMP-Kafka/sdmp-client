@@ -7,11 +7,12 @@
           class="bg-white w-full rounded-full pr-3 pl-16 py-4 flex placeholder:text-xl placeholder:text-black text-xl font-semibold"
           placeholder="Search"
           type="text"
+          v-model="search"
         />
       </div>
       <div class="w-full flex justify-start flex-wrap gap-8">
         <div
-          v-for="(item, index) in topics"
+          v-for="(item, index) in filteredTopic"
           class="w-52 h-24 bg-white rounded-lg font-semibold text-2xl"
         >
           <h1 class="px-3 w-full h-full flex justify-center items-center">
@@ -25,7 +26,7 @@
 
 <script>
 import { searchIcon } from "@/assets";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import axios from "axios";
 export default {
   setup() {
@@ -41,12 +42,18 @@ export default {
         console.log(err);
       });
 
+    const filteredTopic = computed(() => {
+      const searchTerm = search.value.toLowerCase();
+      return topics.value.filter((topic) =>
+        topic.topicName.toLowerCase().includes(searchTerm),
+      );
+    });
+
     return {
       topics,
+      search,
+      filteredTopic,
     };
-  },
-  methods: {
-    searchTopic() {},
   },
   data() {
     return {
